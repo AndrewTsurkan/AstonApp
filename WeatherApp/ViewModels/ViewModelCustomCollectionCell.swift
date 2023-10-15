@@ -38,7 +38,7 @@ class ViewModelCustomCollectionCell {
                 let dayString = data.forecastday.first?.hour?[index].time,
                 let tempDouble = data.forecastday.first?.hour?[index].temp
             else { return }
-            
+
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
             if let date = dateFormatter.date(from: dayString) {
@@ -47,7 +47,7 @@ class ViewModelCustomCollectionCell {
                 let timeString = timeFormatter.string(from: date)
                 self.timeText.onNext(timeString)
             }
-            
+
             let tempString = String(Int(tempDouble))
             self.maxTemp.onNext(tempString + "°")
         }

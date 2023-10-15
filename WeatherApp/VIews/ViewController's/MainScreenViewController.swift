@@ -11,31 +11,44 @@ import RxSwift
 
 class MainScreenViewController: UIViewController {
     
-    let viewModel = ViewModel()
-    let disposeBag = DisposeBag()
+    private let viewModel = ViewModel()
+    private let disposeBag = DisposeBag()
     //MARK: - Property
-    let locationManager = CLLocationManager()
-    let geocoder = CLGeocoder()
-    var city:String = ""
-    let networkManager = NetworkManager()
-    let networkDataFetcher = NetworkDataFetcher()
-    var response: Response?
-    var horizontalCollectionView: UICollectionView!
-    var weeklyForecastTableView = UITableView()
-    var nameCityLabel = UILabel()
-    var tempCurrentLabel = UILabel()
-    var weatherLabel = UILabel()
+    private let locationManager = CLLocationManager()
+    private let geocoder = CLGeocoder()
+    private var city:String = ""
+    private let networkManager = NetworkManager()
+    private let networkDataFetcher = NetworkDataFetcher()
+    private var response: Response?
+    private let searchController = UISearchController(searchResultsController: nil)
+    private var horizontalCollectionView: UICollectionView!
+    private var weeklyForecastTableView = UITableView()
+    private var nameCityLabel = UILabel()
+    private var tempCurrentLabel = UILabel()
+    private var weatherLabel = UILabel()
+    private var timer: Timer? = nil
+    var mainCity = ""
     
     //MARK: - lifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = #colorLiteral(red: 0.2240744233, green: 0.4819361567, blue: 1, alpha: 1)
+        setupSuperView()
         startLocationManager()
         setupViews()
+        setupSearchBar()
     }
     
     //MARK: - Func
-    func startLocationManager() {
+    
+    private func setupSuperView() {
+        view.backgroundColor = #colorLiteral(red: 0.2240744233, green: 0.4819361567, blue: 1, alpha: 1)
+        title = "Weather"
+        let appearance = UINavigationBarAppearance()
+        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.black]
+        navigationItem.standardAppearance = appearance
+    }
+    
+    private func startLocationManager() {
         locationManager.requestWhenInUseAuthorization()
         DispatchQueue.global().async {
             if CLLocationManager.locationServicesEnabled() {
@@ -47,7 +60,7 @@ class MainScreenViewController: UIViewController {
         }
     }
     
-    func updeteWeatherInfo(_ city: String) {
+    private func updeteWeatherInfo(_ city: String) {
         let urlString = "https://api.weatherapi.com/v1/forecast.json?key=27d247ae696845fd99092609231210&q=\(city)&days=10"
         networkDataFetcher.fetchJson(urlString: urlString) { [weak self] result in
             guard let self else { return }
@@ -65,7 +78,7 @@ class MainScreenViewController: UIViewController {
         }
     }
     
-    func update() {
+    private func update() {
         viewModel.city = city
         viewModel.fetchData(city: city)
         
@@ -82,7 +95,7 @@ class MainScreenViewController: UIViewController {
             .disposed(by: disposeBag)
     }
     
-    func setupViews() {
+   private func setupViews() {
         
         view.addSubview(nameCityLabel)
         nameCityLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -160,6 +173,13 @@ class MainScreenViewController: UIViewController {
         
         return layout
     }
+
+    private func setupSearchBar() {
+        navigationItem.searchController = searchController
+        searchController.searchBar.delegate = self
+        navigationController?.navigationBar.prefersLargeTitles = true
+        searchController.obscuresBackgroundDuringPresentation = false
+    }
 }
 
 //MARK: - extension CLLocationManagerDelegate
@@ -173,6 +193,7 @@ extension MainScreenViewController: CLLocationManagerDelegate {
                         DispatchQueue.main.async {
                             self.city = city
                             self.updeteWeatherInfo(self.city)
+                            self.mainCity = city
                             self.update()
                         }
                     }
@@ -217,6 +238,25 @@ extension MainScreenViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         //TODO: - Action
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+}
+
+extension MainScreenViewController: UISearchBarDelegate {
+    func searchBar(_ searchBAr: UISearchBar, textDidChange searchText: String){
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: false, block: { [weak self] _ in
+            self?.city = searchText
+            self?.update()
+            self?.weeklyForecastTableView.reloadData()
+            self?.horizontalCollectionView.reloadData()
+        })
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        self.city = mainCity
+        self.update()
+        self.weeklyForecastTableView.reloadData()
+        self.horizontalCollectionView.reloadData()
     }
 }
 
