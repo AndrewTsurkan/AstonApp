@@ -17,8 +17,7 @@ class ViewModelCustomTableViewCell {
     private(set) var dayName = PublishSubject<String>()
     private(set) var icon = PublishSubject<UIImage>()
     private(set) var maxTemp = PublishSubject<String>()
-    
-    var city:String = ""
+    let imageDownloader = ImageDownloader()
     
     func fetchData(index: Int, city: String) {
         let urlString = "https://api.weatherapi.com/v1/forecast.json?key=27d247ae696845fd99092609231210&q=\(city)&days=10"
@@ -34,18 +33,17 @@ class ViewModelCustomTableViewCell {
                     let dataImage = data.forecast.forecastday[index].day.condition.icon
                     guard let dataImage else { return }
                     let url = "https:" + dataImage
-                    let urlImage = URL(string: url)
-                    
-                    NetworkManager().request(urlString: urlImage!.absoluteString) { [weak self ] result in
-                        guard let self else { return }
-                        switch result {
-                        case let .success(data):
-                            let image = UIImage(data: data)
-                            guard let image else { return }
-                            icon.onNext(image)
-                        case .failure(let error):
-                            print("Error: \(error.localizedDescription)")
+                    DispatchQueue.global().async {
+                        self.imageDownloader.requestImage(urlString: url) { [weak self] result in
+                            guard let self else { return }
+                            switch result {
+                            case .success(let image):
+                                self.icon.onNext(image)
+                            case .failure(let error):
+                                print("Error: \(error.localizedDescription)")
+                            }
                         }
+                        
                     }
                 }
             case .failure(let error):

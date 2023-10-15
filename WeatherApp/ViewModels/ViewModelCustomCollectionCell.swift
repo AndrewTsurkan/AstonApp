@@ -17,7 +17,6 @@ class ViewModelCustomCollectionCell {
     private(set) var timeText = PublishSubject<String>()
     private(set) var maxTemp = PublishSubject<String>()
     
-    
     func fetchData(index: Int, city: String) {
         let urlString = "https://api.weatherapi.com/v1/forecast.json?key=27d247ae696845fd99092609231210&q=\(city)&days=10"
         networkDataFetcher.fetchJson(urlString: urlString) { [weak self] result in

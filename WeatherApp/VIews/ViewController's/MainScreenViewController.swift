@@ -60,26 +60,18 @@ class MainScreenViewController: UIViewController {
         }
     }
     
-    private func updeteWeatherInfo(_ city: String) {
-        let urlString = "https://api.weatherapi.com/v1/forecast.json?key=27d247ae696845fd99092609231210&q=\(city)&days=10"
-        networkDataFetcher.fetchJson(urlString: urlString) { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success(let data):
-                DispatchQueue.main.async {
-                    self.response = data
-                    self.horizontalCollectionView.reloadData()
-                    self.weeklyForecastTableView.reloadData()
-                }
-            case .failure(let error):
-                print("Failed to fetch data: \(error.localizedDescription)")
-                break
-            }
-        }
-    }
-    
     private func update() {
-        viewModel.city = city
+        viewModel.currentResponse.subscribe(onNext: { [weak self] response in
+            self?.response = response
+            DispatchQueue.main.async {
+                self?.horizontalCollectionView.reloadData()
+                self?.weeklyForecastTableView.reloadData()
+            }
+        }, onError: { error in
+            print("Failed to fetch data: \(error.localizedDescription)")
+        }).disposed(by: disposeBag)
+        
+        viewModel.updeteWeatherInfo(city)
         viewModel.fetchData(city: city)
         
         viewModel.nameCity
@@ -192,7 +184,7 @@ extension MainScreenViewController: CLLocationManagerDelegate {
                     if let city = placemark.locality {
                         DispatchQueue.main.async {
                             self.city = city
-                            self.updeteWeatherInfo(self.city)
+                            self.viewModel.updeteWeatherInfo(city)
                             self.mainCity = city
                             self.update()
                         }
@@ -245,11 +237,12 @@ extension MainScreenViewController: UISearchBarDelegate {
     func searchBar(_ searchBAr: UISearchBar, textDidChange searchText: String){
         timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: false, block: { [weak self] _ in
-            self?.city = searchText
-            self?.update()
-            self!.updeteWeatherInfo(self!.city)
-            self?.weeklyForecastTableView.reloadData()
-            self?.horizontalCollectionView.reloadData()
+            guard let self else { return }
+            self.city = searchText
+            self.update()
+            self.viewModel.updeteWeatherInfo(self.city)
+            self.weeklyForecastTableView.reloadData()
+            self.horizontalCollectionView.reloadData()
         })
     }
     

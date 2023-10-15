@@ -14,10 +14,11 @@ class ViewModel {
     private let disposeBag = DisposeBag()
     let networkDataFetcher = NetworkDataFetcher()
     
+    var currentResponse: PublishSubject<Response> = PublishSubject()
     private(set) var nameCity = PublishSubject<String>()
     private(set) var localTemp = PublishSubject<String>()
     private(set) var localWeather = PublishSubject<String>()
-    var city: String = ""
+//    var city: String = ""
     
     
     func fetchData(city: String) {
@@ -37,6 +38,19 @@ class ViewModel {
             case .failure(let error):
                 print("Failed to fetch data: \(error.localizedDescription)")
                 break
+            }
+        }
+    }
+    
+    func updeteWeatherInfo(_ city: String) {
+        let urlString = "https://api.weatherapi.com/v1/forecast.json?key=27d247ae696845fd99092609231210&q=\(city)&days=10"
+        networkDataFetcher.fetchJson(urlString: urlString) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let data):
+                self.currentResponse.onNext(data)
+            case .failure(let error):
+                self.currentResponse.onError(error)
             }
         }
     }
