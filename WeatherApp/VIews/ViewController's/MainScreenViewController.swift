@@ -142,15 +142,15 @@ class MainScreenViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             nameCityLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            nameCityLabel.heightAnchor.constraint(equalToConstant: 100),
+            nameCityLabel.heightAnchor.constraint(equalToConstant: 70),
             nameCityLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             tempCurrentLabel.topAnchor.constraint(equalTo: nameCityLabel.bottomAnchor),
-            tempCurrentLabel.heightAnchor.constraint(equalToConstant: view.bounds.height / 7),
+            tempCurrentLabel.heightAnchor.constraint(equalToConstant: view.bounds.height / 8),
             tempCurrentLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             weatherLabel.topAnchor.constraint(equalTo: tempCurrentLabel.bottomAnchor),
-            weatherLabel.heightAnchor.constraint(equalToConstant: 70),
+            weatherLabel.heightAnchor.constraint(equalToConstant: 50),
             weatherLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             horizontalCollectionView.topAnchor.constraint(equalTo: weatherLabel.bottomAnchor, constant: 20),
@@ -247,6 +247,7 @@ extension MainScreenViewController: UISearchBarDelegate {
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: false, block: { [weak self] _ in
             self?.city = searchText
             self?.update()
+            self!.updeteWeatherInfo(self!.city)
             self?.weeklyForecastTableView.reloadData()
             self?.horizontalCollectionView.reloadData()
         })
