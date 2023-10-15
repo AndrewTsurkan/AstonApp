@@ -54,7 +54,7 @@ class MainScreenViewController: UIViewController {
             if CLLocationManager.locationServicesEnabled() {
                 self.locationManager.delegate = self
                 self.locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
-                self.locationManager.pausesLocationUpdatesAutomatically = false
+                self.locationManager.pausesLocationUpdatesAutomatically = true
                 self.locationManager.startUpdatingLocation()
             }
         }
@@ -240,7 +240,6 @@ extension MainScreenViewController: UISearchBarDelegate {
             guard let self else { return }
             self.city = searchText
             self.update()
-            self.viewModel.updeteWeatherInfo(self.city)
             self.weeklyForecastTableView.reloadData()
             self.horizontalCollectionView.reloadData()
         })
