@@ -21,7 +21,8 @@ class ViewModelCustomTableViewCell {
     
     func fetchData(index: Int, city: String) {
         let urlString = "https://api.weatherapi.com/v1/forecast.json?key=27d247ae696845fd99092609231210&q=\(city)&days=10"
-        networkDataFetcher.fetchJson(urlString: urlString) { result in
+        networkDataFetcher.fetchJson(urlString: urlString) { [weak self] result in
+            guard let self else { return }
             switch result {
             case .success(let data):
                 DispatchQueue.main.async {
