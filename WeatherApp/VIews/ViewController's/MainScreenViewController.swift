@@ -87,7 +87,7 @@ class MainScreenViewController: UIViewController {
             .disposed(by: disposeBag)
     }
     
-   private func setupViews() {
+    private func setupViews() {
         
         view.addSubview(nameCityLabel)
         nameCityLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -95,6 +95,7 @@ class MainScreenViewController: UIViewController {
         nameCityLabel.textAlignment = .center
         nameCityLabel.font = UIFont.boldSystemFont(ofSize: 30)
         nameCityLabel.textColor = .black
+        nameCityLabel.numberOfLines = 0
         
         view.addSubview(tempCurrentLabel)
         tempCurrentLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -134,8 +135,9 @@ class MainScreenViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             nameCityLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            nameCityLabel.heightAnchor.constraint(equalToConstant: 70),
-            nameCityLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            nameCityLabel.heightAnchor.constraint(equalToConstant: 100),
+            nameCityLabel.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 10),
+            nameCityLabel.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -10),
             
             tempCurrentLabel.topAnchor.constraint(equalTo: nameCityLabel.bottomAnchor),
             tempCurrentLabel.heightAnchor.constraint(equalToConstant: view.bounds.height / 8),
@@ -165,7 +167,7 @@ class MainScreenViewController: UIViewController {
         
         return layout
     }
-
+    
     private func setupSearchBar() {
         navigationItem.searchController = searchController
         searchController.searchBar.delegate = self
@@ -181,11 +183,13 @@ extension MainScreenViewController: CLLocationManagerDelegate {
             geocoder.reverseGeocodeLocation(lastLocation) {[ weak self ] placemark, error in
                 guard let self else { return }
                 if let placemark = placemark?.first {
-                    if let city = placemark.locality {
+                    if var city = placemark.locality {
                         DispatchQueue.main.async {
-                            self.city = city
+                            let replacedStr = city.replacingOccurrences(of: " ", with: "%")
+                                .replacingOccurrences(of: "-", with: "%")
+                            self.city = replacedStr
                             self.viewModel.updeteWeatherInfo(city)
-                            self.mainCity = city
+                            self.mainCity = replacedStr
                             self.update()
                         }
                     }
