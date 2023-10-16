@@ -18,7 +18,6 @@ class ViewModel {
     private(set) var nameCity = PublishSubject<String>()
     private(set) var localTemp = PublishSubject<String>()
     private(set) var localWeather = PublishSubject<String>()
-//    var city: String = ""
     
     
     func fetchData(city: String) {

@@ -30,7 +30,6 @@ class CustomCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    
     func setupViews() {
         addSubview(timeLabel)
         timeLabel.translatesAutoresizingMaskIntoConstraints = false
