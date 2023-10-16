@@ -66,10 +66,16 @@ class CustomTableViewCell: UITableViewCell {
     func reloadData() {
         viewModel.fetchData(index: index, city: city)
         
-        viewModel.dayName.bind(to: dayNameLabel.rx.text).disposed(by: disposeBag)
+        viewModel.dayName
+            .bind(to: dayNameLabel.rx.text)
+            .disposed(by: disposeBag)
         
-        viewModel.maxTemp.bind(to: maxTLabel.rx.text).disposed(by: disposeBag)
+        viewModel.maxTemp
+            .bind(to: maxTLabel.rx.text)
+            .disposed(by: disposeBag)
         
-        viewModel.icon.bind(to: iconImageView.rx.image).disposed(by: disposeBag)
+        viewModel.icon
+            .bind(to: iconImageView.rx.image)
+            .disposed(by: disposeBag)
     }
 }

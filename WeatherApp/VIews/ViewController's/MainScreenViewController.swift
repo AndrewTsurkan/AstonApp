@@ -180,29 +180,38 @@ class MainScreenViewController: UIViewController {
 extension MainScreenViewController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let lastLocation = locations.last {
-            geocoder.reverseGeocodeLocation(lastLocation) {[ weak self ] placemark, error in
-                guard let self else { return }
-                if let placemark = placemark?.first {
-                    if var city = placemark.locality {
-                        DispatchQueue.main.async {
-                            let replacedStr = city.replacingOccurrences(of: " ", with: "%")
-                                .replacingOccurrences(of: "-", with: "%")
-                            self.city = replacedStr
-                            self.viewModel.updeteWeatherInfo(city)
-                            self.mainCity = replacedStr
-                            self.update()
-                        }
+            geocoder.reverseGeocodeLocation(lastLocation) { [weak self] placemark, error in
+                guard let self = self else { return }
+                if let placemark = placemark?.first, let city = placemark.locality {
+                    DispatchQueue.main.async {
+                        let replacedStr = city.replacingOccurrences(of: " ", with: "%").replacingOccurrences(of: "-", with: "%")
+                        self.city = replacedStr
+                        self.viewModel.updeteWeatherInfo(city)
+                        self.mainCity = replacedStr
+                        self.update()
                     }
                 }
                 if error != nil {
-                    print("ошибка в получении данных")
+                    print("Error getting location data")
                     return
                 }
             }
-            
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        if (error as? CLError)?.code == .denied {
+            DispatchQueue.main.async {
+                let defaultCity = "Moscow"
+                self.city = defaultCity.replacingOccurrences(of: " ", with: "%").replacingOccurrences(of: "-", with: "%")
+                self.viewModel.updeteWeatherInfo(defaultCity)
+                self.mainCity = defaultCity
+                self.update()
+            }
         }
     }
 }
+
 //MARK: - extension UICollectionViewDataSource, UICollectionViewDelegate
 extension MainScreenViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -245,10 +254,13 @@ extension MainScreenViewController: UISearchBarDelegate {
             if searchText.isEmpty {
                 return
             }
-            self.city = searchText
-            self.update()
-            self.weeklyForecastTableView.reloadData()
-            self.horizontalCollectionView.reloadData()
+            let replacedStr = searchText.replacingOccurrences(of: " ", with: "%").replacingOccurrences(of: "-", with: "%")
+            DispatchQueue.main.async {
+                self.city = replacedStr
+                self.update()
+                self.weeklyForecastTableView.reloadData()
+                self.horizontalCollectionView.reloadData()
+            }
         })
     }
     

@@ -21,7 +21,8 @@ class ViewModel {
     
     
     func fetchData(city: String) {
-        let urlString = "https://api.weatherapi.com/v1/forecast.json?key=27d247ae696845fd99092609231210&q=\(city)&days=10"
+        let replacedStr = city.replacingOccurrences(of: " ", with: "%").replacingOccurrences(of: "-", with: "%")
+        let urlString = "https://api.weatherapi.com/v1/forecast.json?key=27d247ae696845fd99092609231210&q=\(replacedStr)&days=10"
         networkDataFetcher.fetchJson(urlString: urlString) { [weak self] result in
             guard let self else { return }
             switch result {
