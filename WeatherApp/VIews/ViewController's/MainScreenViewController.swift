@@ -238,6 +238,9 @@ extension MainScreenViewController: UISearchBarDelegate {
         timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: false, block: { [weak self] _ in
             guard let self else { return }
+            if searchText.isEmpty {
+                return
+            }
             self.city = searchText
             self.update()
             self.weeklyForecastTableView.reloadData()

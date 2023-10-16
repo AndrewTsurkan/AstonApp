@@ -51,12 +51,12 @@ struct Forecastday: Codable {
     
     struct Day: Codable {
         var maxTemp: Double?
-        var mintemp: Double?
+//        var mintemp: Double?
         var condition: Condition
         
         enum CodingKeys: String, CodingKey {
             case maxTemp = "maxtemp_c"
-            case mintemp = "mintemp_c"
+//            case mintemp = "mintemp_c"
             case condition = "condition"
         }
     }
