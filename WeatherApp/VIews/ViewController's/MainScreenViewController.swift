@@ -203,7 +203,7 @@ extension MainScreenViewController: CLLocationManagerDelegate {
         if (error as? CLError)?.code == .denied {
             DispatchQueue.main.async {
                 let defaultCity = "Moscow"
-                self.city = defaultCity.replacingOccurrences(of: " ", with: "%").replacingOccurrences(of: "-", with: "%")
+                self.city = defaultCity
                 self.viewModel.updeteWeatherInfo(defaultCity)
                 self.mainCity = defaultCity
                 self.update()
